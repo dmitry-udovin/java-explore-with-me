@@ -21,9 +21,25 @@ services:
       POSTGRES_PASSWORD: stats
 
   ewm-service:
-    image: nginx:alpine
+    build: service/service-main
+    container_name: ewm-service
     ports:
-      - "8080:80"
+      - "8080:8080"
+    depends_on:
+      ewm-db:
+        condition: service_started
+      stats-server:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
+      SPRING_DATASOURCE_USERNAME: ewm
+      SPRING_DATASOURCE_PASSWORD: ewm
+      STATS_SERVER_URL: http://stats-server:9090
 
   ewm-db:
     image: postgres:16.1
+    container_name: ewm-db
+    environment:
+      POSTGRES_DB: ewm
+      POSTGRES_USER: ewm
+      POSTGRES_PASSWORD: ewm
