@@ -55,6 +55,16 @@ public class ErrorHandler {
                         e.getMessage()));
     }
 
+    @ExceptionHandler(ForbiddenOperationException.class)
+    public ResponseEntity<ErrorResponse> handleForbiddenOperation(ForbiddenOperationException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(
+                        HttpStatus.FORBIDDEN.name(),
+                        "Для запрошенной операции условия не выполнены",
+                        e.getMessage()));
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException e) {
         log.warn(e.getMessage());
