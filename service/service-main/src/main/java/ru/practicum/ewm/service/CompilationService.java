@@ -35,7 +35,7 @@ public class CompilationService {
 
     @Transactional
     public CompilationDto create(NewCompilationDto dto) {
-        Set<Event> events = resolvePublishedEvents(dto.getEvents());
+        Set<Event> events = resolveEvents(dto.getEvents());
         Compilation compilation = compilationMapper.toEntity(dto, events);
         return toDto(compilationRepository.save(compilation));
     }
@@ -92,7 +92,7 @@ public class CompilationService {
         return compilationMapper.toDto(compilation, confirmed, views);
     }
 
-    private Set<Event> resolvePublishedEvents(Set<Long> eventIds) {
+    private Set<Event> resolveEvents(Set<Long> eventIds) {
         if (eventIds == null || eventIds.isEmpty()) {
             return new HashSet<>();
         }
@@ -100,11 +100,16 @@ public class CompilationService {
         if (events.size() != eventIds.size()) {
             throw new BadRequestException("Не все события были найдены");
         }
+        return new HashSet<>(events);
+    }
+
+    private Set<Event> resolvePublishedEvents(Set<Long> eventIds) {
+        Set<Event> events = resolveEvents(eventIds);
         boolean allPublished = events.stream().allMatch(e -> e.getState() == EventState.PUBLISHED);
         if (!allPublished) {
             throw new BadRequestException("Только опубликованные события могут быть добавлены в подборку");
         }
-        return new HashSet<>(events);
+        return events;
     }
 
     private Compilation getCompilationOrThrow(Long compId) {

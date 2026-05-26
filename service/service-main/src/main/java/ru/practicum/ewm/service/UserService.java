@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
+import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.model.User;
@@ -23,6 +24,7 @@ public class UserService {
 
     @Transactional
     public UserDto register(NewUserRequest request) {
+        validateEmailLocalPart(request.getEmail());
         User user = User.builder()
                 .name(request.getName())
                 .email(request.getEmail())
@@ -56,5 +58,13 @@ public class UserService {
     public User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
+    }
+
+    private void validateEmailLocalPart(String email) {
+        int atIndex = email.indexOf('@');
+        if (atIndex > 64) {
+            throw new BadRequestException(
+                    "email: длина основной части не должна превышать 64 символа. Value: " + email);
+        }
     }
 }

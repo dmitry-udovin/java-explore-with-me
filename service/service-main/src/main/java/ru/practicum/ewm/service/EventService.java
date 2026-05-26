@@ -145,11 +145,13 @@ public class EventService {
         return mapToShortDtos(PaginationUtil.paginate(events, from, size), confirmed, views);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
         Event event = getPublishedEventOrThrow(eventId);
         statsService.saveHit(request, EVENTS_URI + "/" + eventId);
-        return toFullDto(event);
+        long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+        long views = Math.max(statsService.getViewsForEvent(eventId), 1L);
+        return eventMapper.toFullDto(event, confirmed, views);
     }
 
     public Event getEventOrThrow(Long eventId) {
@@ -243,6 +245,7 @@ public class EventService {
             event.setDescription(dto.getDescription());
         }
         if (dto.getEventDate() != null) {
+            validateEventDate(dto.getEventDate());
             event.setEventDate(dto.getEventDate());
         }
         if (dto.getLocation() != null) {
@@ -264,7 +267,7 @@ public class EventService {
 
     private void validateEventDate(LocalDateTime eventDate) {
         if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ForbiddenOperationException(
+            throw new BadRequestException(
                     "eventDate должно содержать дату, которая еще не наступила. Value: " + eventDate);
         }
     }

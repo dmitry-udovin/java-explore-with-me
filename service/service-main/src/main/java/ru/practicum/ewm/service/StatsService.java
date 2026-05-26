@@ -43,8 +43,10 @@ public class StatsService {
                 .map(id -> Constants.EVENT_URI_PREFIX + id)
                 .toList();
         try {
-            List<ViewStatsDto> stats = statsClient.getStats(STATS_START, LocalDateTime.now(), uris, false);
+            LocalDateTime end = LocalDateTime.now().plusSeconds(1);
+            List<ViewStatsDto> stats = statsClient.getStats(STATS_START, end, uris, true);
             return stats.stream()
+                    .filter(s -> Constants.STATS_APP.equals(s.getApp()))
                     .collect(Collectors.toMap(
                             s -> Long.parseLong(s.getUri().replace(Constants.EVENT_URI_PREFIX, "")),
                             ViewStatsDto::getHits,

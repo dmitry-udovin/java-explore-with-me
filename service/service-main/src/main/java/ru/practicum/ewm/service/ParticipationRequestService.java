@@ -7,7 +7,6 @@ import ru.practicum.ewm.dto.event.enums.RequestStatusAction;
 import ru.practicum.ewm.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
-import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.ForbiddenOperationException;
 import ru.practicum.ewm.exception.NotFoundException;
@@ -62,9 +61,8 @@ public class ParticipationRequestService {
             throw new ForbiddenOperationException("Лимит участников был достигнут");
         }
 
-        RequestStatus status = Boolean.FALSE.equals(event.getRequestModeration())
-                ? RequestStatus.CONFIRMED
-                : RequestStatus.PENDING;
+        boolean moderationRequired = Boolean.TRUE.equals(event.getRequestModeration()) && limit != 0;
+        RequestStatus status = moderationRequired ? RequestStatus.PENDING : RequestStatus.CONFIRMED;
 
         ParticipationRequest request = ParticipationRequest.builder()
                 .created(LocalDateTime.now())
