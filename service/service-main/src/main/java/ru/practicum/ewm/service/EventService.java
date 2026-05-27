@@ -116,8 +116,8 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventShortDto> searchPublic(String text, List<Long> categories, boolean paid,
-                                            String rangeStart, String rangeEnd, boolean onlyAvailable,
+    public List<EventShortDto> searchPublic(String text, List<Long> categories, Boolean paid,
+                                            String rangeStart, String rangeEnd, Boolean onlyAvailable,
                                             String sort, int from, int size, HttpServletRequest request) {
         LocalDateTime start = parseDateTime(rangeStart);
         LocalDateTime end = parseDateTime(rangeEnd);
@@ -131,7 +131,7 @@ public class EventService {
         Map<Long, Long> confirmed = requestStatsService.getConfirmedByEventIds(eventIds);
         Map<Long, Long> views = statsService.getViewsByEventIds(eventIds);
 
-        if (onlyAvailable) {
+        if (Boolean.TRUE.equals(onlyAvailable)) {
             events.removeIf(e -> !isAvailable(e, confirmed.getOrDefault(e.getId(), 0L)));
         }
 
