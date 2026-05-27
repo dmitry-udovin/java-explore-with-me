@@ -31,14 +31,14 @@ public class CategoryService {
     }
 
     @Transactional
-    public CategoryDto update(Long catId, CategoryDto dto) {
+    public CategoryDto update(long catId, CategoryDto dto) {
         Category category = getCategoryOrThrow(catId);
         category.setName(dto.getName());
         return categoryMapper.toDto(categoryRepository.save(category));
     }
 
     @Transactional
-    public void delete(Long catId) {
+    public void delete(long catId) {
         getCategoryOrThrow(catId);
         if (eventRepository.countByCategoryId(catId) > 0) {
             throw new ConflictException("The category is not empty");
@@ -47,7 +47,7 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public CategoryDto getById(Long catId) {
+    public CategoryDto getById(long catId) {
         return categoryMapper.toDto(getCategoryOrThrow(catId));
     }
 
@@ -61,7 +61,7 @@ public class CategoryService {
                 .toList();
     }
 
-    private Category getCategoryOrThrow(Long catId) {
+    private Category getCategoryOrThrow(long catId) {
         return categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
     }

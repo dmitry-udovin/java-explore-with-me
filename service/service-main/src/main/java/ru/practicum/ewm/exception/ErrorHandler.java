@@ -88,4 +88,15 @@ public class ErrorHandler {
                         "Ошибка: некорректный запрос",
                         e.getMessage()));
     }
+
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<ErrorResponse> handleAll(Exception e) {
+        log.warn(e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(
+                        HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                        "Error: неизвестная ошибка сервера",
+                        e.getMessage()));
+    }
+
 }

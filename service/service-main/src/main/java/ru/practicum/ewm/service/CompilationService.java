@@ -41,7 +41,7 @@ public class CompilationService {
     }
 
     @Transactional
-    public CompilationDto update(Long compId, UpdateCompilationRequest dto) {
+    public CompilationDto update(long compId, UpdateCompilationRequest dto) {
         Compilation compilation = getCompilationOrThrow(compId);
         if (dto.getPinned() != null) {
             compilation.setPinned(dto.getPinned());
@@ -56,13 +56,13 @@ public class CompilationService {
     }
 
     @Transactional
-    public void delete(Long compId) {
+    public void delete(long compId) {
         getCompilationOrThrow(compId);
         compilationRepository.deleteById(compId);
     }
 
     @Transactional(readOnly = true)
-    public CompilationDto getById(Long compId) {
+    public CompilationDto getById(long compId) {
         return toDto(getCompilationOrThrow(compId));
     }
 
@@ -112,7 +112,7 @@ public class CompilationService {
         return events;
     }
 
-    private Compilation getCompilationOrThrow(Long compId) {
+    private Compilation getCompilationOrThrow(long compId) {
         return compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Compilation with id=" + compId + " was not found"));
     }

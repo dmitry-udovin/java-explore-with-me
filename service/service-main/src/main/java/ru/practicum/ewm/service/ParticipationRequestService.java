@@ -33,7 +33,7 @@ public class ParticipationRequestService {
     private final RequestMapper requestMapper;
 
     @Transactional(readOnly = true)
-    public List<ParticipationRequestDto> getUserRequests(Long userId) {
+    public List<ParticipationRequestDto> getUserRequests(long userId) {
         userService.getUserOrThrow(userId);
         return requestRepository.findAllByRequesterId(userId).stream()
                 .map(requestMapper::toDto)
@@ -41,7 +41,7 @@ public class ParticipationRequestService {
     }
 
     @Transactional
-    public ParticipationRequestDto create(Long userId, Long eventId) {
+    public ParticipationRequestDto create(long userId, long eventId) {
         User requester = userService.getUserOrThrow(userId);
         Event event = getEventOrThrow(eventId);
 
@@ -74,7 +74,7 @@ public class ParticipationRequestService {
     }
 
     @Transactional
-    public ParticipationRequestDto cancel(Long userId, Long requestId) {
+    public ParticipationRequestDto cancel(long userId, long requestId) {
         userService.getUserOrThrow(userId);
         ParticipationRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Request with id=" + requestId + " was not found"));
@@ -86,7 +86,7 @@ public class ParticipationRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
+    public List<ParticipationRequestDto> getEventRequests(long userId, long eventId) {
         getUserEventOrThrow(userId, eventId);
         return requestRepository.findAllByEventId(eventId).stream()
                 .map(requestMapper::toDto)
@@ -94,7 +94,7 @@ public class ParticipationRequestService {
     }
 
     @Transactional
-    public EventRequestStatusUpdateResult changeStatus(Long userId, Long eventId,
+    public EventRequestStatusUpdateResult changeStatus(long userId, long eventId,
                                                        EventRequestStatusUpdateRequest dto) {
         Event event = getUserEventOrThrow(userId, eventId);
         List<ParticipationRequest> requests = requestRepository.findAllByIdInAndEventId(
@@ -138,12 +138,12 @@ public class ParticipationRequestService {
                 .build();
     }
 
-    private Event getEventOrThrow(Long eventId) {
+    private Event getEventOrThrow(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
     }
 
-    private Event getUserEventOrThrow(Long userId, Long eventId) {
+    private Event getUserEventOrThrow(long userId, long eventId) {
         Event event = getEventOrThrow(eventId);
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
@@ -151,7 +151,7 @@ public class ParticipationRequestService {
         return event;
     }
 
-    private void rejectRemainingPending(Long eventId, List<ParticipationRequestDto> rejected) {
+    private void rejectRemainingPending(long eventId, List<ParticipationRequestDto> rejected) {
         List<ParticipationRequest> pending = requestRepository.findAllByEventId(eventId).stream()
                 .filter(r -> r.getStatus() == RequestStatus.PENDING)
                 .toList();

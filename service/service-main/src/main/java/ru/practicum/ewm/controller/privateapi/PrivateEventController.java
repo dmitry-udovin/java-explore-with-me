@@ -34,7 +34,7 @@ public class PrivateEventController {
 
     @GetMapping
     public List<EventShortDto> getEvents(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size) {
         return eventService.getUserEvents(userId, from, size);
@@ -42,30 +42,30 @@ public class PrivateEventController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto create(@PathVariable Long userId, @Valid @RequestBody NewEventDto dto) {
+    public EventFullDto create(@PathVariable long userId, @Valid @RequestBody NewEventDto dto) {
         return eventService.create(userId, dto);
     }
 
     @GetMapping("/{eventId}")
-    public EventFullDto getEvent(@PathVariable Long userId, @PathVariable Long eventId) {
+    public EventFullDto getEvent(@PathVariable long userId, @PathVariable Long eventId) {
         return eventService.getUserEvent(userId, eventId);
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto update(@PathVariable Long userId, @PathVariable Long eventId,
+    public EventFullDto update(@PathVariable long userId, @PathVariable long eventId,
                                @Valid @RequestBody UpdateEventUserRequest dto) {
         return eventService.updateByUser(userId, eventId, dto);
     }
 
     @GetMapping("/{eventId}/requests")
-    public List<ParticipationRequestDto> getEventRequests(@PathVariable Long userId, @PathVariable Long eventId) {
+    public List<ParticipationRequestDto> getEventRequests(@PathVariable long userId, @PathVariable long eventId) {
         return requestService.getEventRequests(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult changeRequestStatus(
-            @PathVariable Long userId,
-            @PathVariable Long eventId,
+            @PathVariable long userId,
+            @PathVariable long eventId,
             @Valid @RequestBody EventRequestStatusUpdateRequest dto) {
         return requestService.changeStatus(userId, eventId, dto);
     }

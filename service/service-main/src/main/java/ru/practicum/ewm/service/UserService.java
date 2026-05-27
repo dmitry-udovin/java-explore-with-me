@@ -33,7 +33,7 @@ public class UserService {
     }
 
     @Transactional
-    public void delete(Long userId) {
+    public void delete(long userId) {
         getUserOrThrow(userId);
         userRepository.deleteById(userId);
     }
@@ -55,7 +55,7 @@ public class UserService {
                 .toList();
     }
 
-    public User getUserOrThrow(Long userId) {
+    public User getUserOrThrow(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id=" + userId + " was not found"));
     }

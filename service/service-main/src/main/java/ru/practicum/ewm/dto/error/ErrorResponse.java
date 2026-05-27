@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 public class ErrorResponse {
 
-    private final List<String> errors;
+    private final List<String> errors = Collections.emptyList();
 
     private final String message;
 
@@ -19,13 +19,11 @@ public class ErrorResponse {
     private final String status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private final LocalDateTime timestamp;
+    private final LocalDateTime timestamp = LocalDateTime.now();
 
     public ErrorResponse(String status, String reason, String message) {
         this.status = status;
         this.reason = reason;
         this.message = message;
-        this.timestamp = LocalDateTime.now();
-        this.errors = Collections.emptyList();
     }
 }

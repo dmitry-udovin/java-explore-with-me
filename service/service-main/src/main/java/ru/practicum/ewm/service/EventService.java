@@ -52,7 +52,7 @@ public class EventService {
     private final StatsService statsService;
 
     @Transactional
-    public EventFullDto create(Long userId, NewEventDto dto) {
+    public EventFullDto create(long userId, NewEventDto dto) {
         User initiator = userService.getUserOrThrow(userId);
         Category category = categoryRepository.findById(dto.getCategory())
                 .orElseThrow(() -> new NotFoundException("Category with id=" + dto.getCategory() + " was not found"));
@@ -62,7 +62,7 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
+    public List<EventShortDto> getUserEvents(long userId, int from, int size) {
         userService.getUserOrThrow(userId);
         List<Event> events = eventRepository.findAllByInitiatorId(userId).stream()
                 .sorted(Comparator.comparing(Event::getId))
@@ -71,12 +71,12 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public EventFullDto getUserEvent(Long userId, Long eventId) {
+    public EventFullDto getUserEvent(long userId, long eventId) {
         return toFullDto(getUserEventOrThrow(userId, eventId));
     }
 
     @Transactional
-    public EventFullDto updateByUser(Long userId, Long eventId, UpdateEventUserRequest dto) {
+    public EventFullDto updateByUser(long userId, long eventId, UpdateEventUserRequest dto) {
         Event event = getUserEventOrThrow(userId, eventId);
         if (event.getState() != EventState.PENDING && event.getState() != EventState.CANCELED) {
             throw new ForbiddenOperationException("Только отклонённые/в ожидании события могут быть изменены");
@@ -104,7 +104,7 @@ public class EventService {
     }
 
     @Transactional
-    public EventFullDto updateByAdmin(Long eventId, UpdateEventAdminRequest dto) {
+    public EventFullDto updateByAdmin(long eventId, UpdateEventAdminRequest dto) {
         Event event = getEventOrThrow(eventId);
         applyAdminUpdate(event, dto);
         if (dto.getStateAction() == AdminStateAction.PUBLISH_EVENT) {
@@ -116,8 +116,8 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventShortDto> searchPublic(String text, List<Long> categories, Boolean paid,
-                                            String rangeStart, String rangeEnd, Boolean onlyAvailable,
+    public List<EventShortDto> searchPublic(String text, List<Long> categories, boolean paid,
+                                            String rangeStart, String rangeEnd, boolean onlyAvailable,
                                             String sort, int from, int size, HttpServletRequest request) {
         LocalDateTime start = parseDateTime(rangeStart);
         LocalDateTime end = parseDateTime(rangeEnd);
@@ -131,22 +131,22 @@ public class EventService {
         Map<Long, Long> confirmed = requestStatsService.getConfirmedByEventIds(eventIds);
         Map<Long, Long> views = statsService.getViewsByEventIds(eventIds);
 
-        if (Boolean.TRUE.equals(onlyAvailable)) {
+        if (onlyAvailable) {
             events.removeIf(e -> !isAvailable(e, confirmed.getOrDefault(e.getId(), 0L)));
         }
 
-        if ("VIEWS".equals(sort)) {
-            events.sort(Comparator.comparing((Event e) -> views.getOrDefault(e.getId(), 0L)).reversed());
-        } else {
-            events.sort(Comparator.comparing(Event::getEventDate));
-        }
+        Comparator<Event> comparator = "VIEWS".equals(sort)
+                ? Comparator.comparing((Event e) -> views.getOrDefault(e.getId(), 0L)).reversed()
+                : Comparator.comparing(Event::getEventDate);
+
+        events.sort(comparator);
 
         statsService.saveHit(request, EVENTS_URI);
         return mapToShortDtos(PaginationUtil.paginate(events, from, size), confirmed, views);
     }
 
     @Transactional
-    public EventFullDto getPublicEvent(Long eventId, HttpServletRequest request) {
+    public EventFullDto getPublicEvent(long eventId, HttpServletRequest request) {
         Event event = getPublishedEventOrThrow(eventId);
         statsService.saveHit(request, EVENTS_URI + "/" + eventId);
         long confirmed = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
@@ -154,12 +154,12 @@ public class EventService {
         return eventMapper.toFullDto(event, confirmed, views);
     }
 
-    public Event getEventOrThrow(Long eventId) {
+    public Event getEventOrThrow(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
     }
 
-    public Event getUserEventOrThrow(Long userId, Long eventId) {
+    public Event getUserEventOrThrow(long userId, long eventId) {
         Event event = getEventOrThrow(eventId);
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
@@ -167,7 +167,7 @@ public class EventService {
         return event;
     }
 
-    private Event getPublishedEventOrThrow(Long eventId) {
+    private Event getPublishedEventOrThrow(long eventId) {
         Event event = getEventOrThrow(eventId);
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("Event with id=" + eventId + " was not found");
