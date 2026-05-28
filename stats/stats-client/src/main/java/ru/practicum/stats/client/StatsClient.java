@@ -44,7 +44,7 @@ public class StatsClient {
             uris.forEach(uri -> builder.queryParam("uris", uri));
         }
 
-        String url = builder.build(true).toUriString();
+        String url = builder.encode().build().toUriString();
         ResponseEntity<ViewStatsDto[]> response = restTemplate.getForEntity(url, ViewStatsDto[].class);
         ViewStatsDto[] body = response.getBody();
         if (body == null) {
